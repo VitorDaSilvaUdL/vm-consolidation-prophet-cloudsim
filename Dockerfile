@@ -39,6 +39,8 @@ RUN python3.8 -m pip install 'setuptools<58' wheel && \
 
 ENV JPY_LIB=/usr/local/lib/python3.8/dist-packages/jpy.cpython-38-x86_64-linux-gnu.so
 ENV JDL_LIB=/usr/local/lib/python3.8/dist-packages/jdl.cpython-38-x86_64-linux-gnu.so
+# libpython must be preloaded so the JVM can start the embedded Python (jpy)
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0
 
 # Copiar pymodule Python (forecasting: Prophet, AutoARIMA, KNN, Bollinger)
 # Path local: networkExperiments/svila_phd_metacloudsim/cloudsim/src/main/python
@@ -48,11 +50,10 @@ ENV JDL_LIB=/usr/local/lib/python3.8/dist-packages/jdl.cpython-38-x86_64-linux-g
 COPY scripts/docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 RUN chmod +x /usr/local/bin/docker_entrypoint.sh
 
-# Directorio de trabajo principal
+# Main working directory. The repository is mounted here at run time
+# (docker run -v "$PWD":/workspace ...), so jar, launcher.json, testbed/,
+# workloads/, pymodule/ and results/ all come from the mounted repo.
 WORKDIR /workspace
-
-# Copiar config launcher para Docker (paths dentro del container)
-COPY configs/launcher_docker.json /workspace/launcher.json
 
 # Exponer puerto para Jupyter
 EXPOSE 8888

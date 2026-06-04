@@ -2,7 +2,7 @@
 # Prophet vs NeuralProphet. Extiende la imagen base (no recompila todo).
 #
 # Build:  docker build -f Dockerfile.neural -t metacloudsim-neural .
-FROM project_minimized-metacloudsim
+FROM metacloudsim
 
 # NeuralProphet 0.2.7 + torch 1.6.0 (versiones del requirements original, py3.8)
 RUN python3.8 -m pip install 'neuralprophet==0.2.7' 'torch==1.6.0'

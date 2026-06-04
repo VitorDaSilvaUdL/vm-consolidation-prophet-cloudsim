@@ -18,30 +18,34 @@ This repository contains everything needed to **reproduce the experiments** (840
 
 ---
 
-## Quick start (Docker)
+## Quick start (clone → build → run)
 
-The simulator needs Java 8 + Python 3.8 + Facebook Prophet, bridged by `jpy`. The Docker image
-builds the whole toolchain (including `jpy` from source), so a single command reproduces an
-experiment.
+Only **Docker** and **Git LFS** are required (no local Java/Python). Everything else —
+simulator (`metacloud.jar`), configs, workloads and forecasting code — is in the repo.
 
 ```bash
-# 1) Build the image (Java 8 + Python 3.8 + Prophet + jpy)
-docker build -t metacloudsim .
-
-# 2) Run an experiment (output is written to ./results, outside the container)
-docker compose run --rm metacloudsim
-
-# 3) Analyse results / regenerate tables and figures
-docker compose up jupyter      # then open http://localhost:8888
+git lfs install
+git clone https://github.com/VitorDaSilvaUdL/vm-consolidation-prophet-cloudsim.git
+cd vm-consolidation-prophet-cloudsim
+docker compose build                         # build the image (~10 min, first time)
+docker compose run --rm sim                  # run PlanetLab (WBF + Prophet)
+docker compose up jupyter                    # analysis at http://localhost:8888
 ```
 
-Windows (PowerShell) helper:
+Run any experiment by name (file in `testbed/` without `.json`):
 
+**Linux / macOS**
+```bash
+docker run --rm -v "$PWD":/workspace -w /workspace metacloudsim \
+  java -jar metacloud.jar testbed paper4_full_alibaba_prophet
+```
+**Windows (PowerShell)**
 ```powershell
-.\scripts\docker_build_and_run.ps1 -Action build      # build image
-.\scripts\docker_build_and_run.ps1 -Action smoke      # quick smoke test
-.\scripts\docker_build_and_run.ps1 -Action jupyter    # analysis notebooks
+docker run --rm -v "${PWD}:/workspace" -w /workspace metacloudsim `
+  java -jar metacloud.jar testbed paper4_full_alibaba_prophet
 ```
+
+➡ **Full step-by-step for every experiment: [REPRODUCE.md](REPRODUCE.md)** (Linux + Windows).
 
 ---
 
@@ -49,9 +53,9 @@ Windows (PowerShell) helper:
 
 The experiments use four public cloud workloads — **PlanetLab, Alibaba 2018, Materna, Microsoft
 Azure 2019**. Small **100-VM processed subsets** (`*_100_mostDiff`, ~8 MB total) are **included**
-under `data/` so everything can be reproduced from a single clone. Each dataset keeps its original
-license — see **[data/DATA_LICENSES.md](data/DATA_LICENSES.md)** for sources, terms and citations.
-The reference values reproduced by this package (paper Tables 6–9) are in `results/reference/`.
+under `workloads/` so everything reproduces from a single clone. Each dataset keeps its original
+license — see **[workloads/DATA_LICENSES.md](workloads/DATA_LICENSES.md)** for sources, terms and
+citations. The reference values (paper Tables 6–9) are in `results/reference/`.
 
 ---
 
@@ -59,15 +63,18 @@ The reference values reproduced by this package (paper Tables 6–9) are in `res
 
 ```
 .
-├── Dockerfile                # Java 8 + Python 3.8 + Prophet + jpy (ubuntu:20.04)
-├── Dockerfile.neural         # variant with NeuralProphet (forecaster comparison)
-├── docker-compose.yml        # services: metacloudsim + jupyter
-├── configs/                  # launcher + paper4 experiment configs
-├── scripts/                  # run + analysis scripts (PowerShell / Python / bash)
-├── experiments/              # additional experiments (bollinger_tuning, neuralprophet)
+├── metacloud.jar             # the CloudSim-based simulator (Git LFS)
+├── launcher.json             # paths used inside the container (baseFolder=/workspace)
+├── pymodule/                 # Python forecasting (Prophet, Bollinger, ...) loaded via jpy
+├── testbed/                  # experiment configs (paper4_full_*, exp_*)
+├── workloads/                # 100-VM trace subsets + DATA_LICENSES.md
+├── results/                  # run outputs (results/reference/ = paper Tables 6–9)
+├── scripts/                  # analysis / helper scripts
 ├── python/notebooks/         # analysis notebooks (tables and figures)
-├── data/                     # place workload traces here (see README_DATA.md)
-├── results/reference/        # paper Tables 6–9 (ground truth)
+├── Dockerfile                # toolchain: Java 8 + Python 3.8 + Prophet + jpy
+├── Dockerfile.neural         # variant with NeuralProphet (forecaster comparison)
+├── docker-compose.yml        # services: sim + jupyter
+├── REPRODUCE.md              # how to run each experiment (Linux + Windows)
 └── docs/                     # audit, specs, reproducibility report
 ```
 

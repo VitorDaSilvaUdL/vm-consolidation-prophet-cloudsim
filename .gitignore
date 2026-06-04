@@ -4,20 +4,18 @@ __pycache__/
 venv*/
 .venv/
 *.egg-info/
-
-# Notebooks
 .ipynb_checkpoints/
 
-# Experiment outputs
-results/smoke_test/*
-!results/smoke_test/.gitkeep
-output/
-generatedExperiments/
+# Experiment run outputs (keep results/reference/ tracked)
+results/*
+!results/.gitkeep
+!results/reference/
+results/reference/**/__pycache__/
+debugLog.txt
 *.log
 
-# Workload traces: the small 100_mostDiff subsets ARE included (see data/DATA_LICENSES.md).
-# Ignore only heavy raw/testing variants if ever copied here:
-data/**/*_testing*/
+# Heavy raw/testing workload variants (only the *_100_mostDiff subsets are shipped)
+workloads/**/*_testing*/
 
 # OS / editor
 .DS_Store

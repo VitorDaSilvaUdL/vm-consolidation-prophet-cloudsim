@@ -1,102 +1,31 @@
-version: '3.8'
-
-# MetaCloudSim (Paper 4) - Docker Compose
-# Uso:
-#   docker-compose run --rm metacloudsim   # Smoke test
-#   docker-compose up jupyter              # Analisis de resultados
+# MetaCloudSim — Paper 4 reproduction (standalone)
+#
+# The image provides the toolchain (Java 8 + Python 3.8 + Facebook Prophet + jpy).
+# The repository is mounted at /workspace, so the jar, configs, workloads and
+# pymodule all come from your clone. Results are written to ./results.
+#
+#   docker compose build                       # build the image (first time, ~10 min)
+#   docker compose run --rm sim                 # default: PlanetLab (WBF + Prophet)
+#   docker compose run --rm sim java -jar metacloud.jar testbed paper4_full_alibaba_prophet
+#   docker compose up jupyter                   # analysis notebooks at http://localhost:8888
 
 services:
-  # Servicio principal: ejecuta simulaciones MetaCloudSim
-  metacloudsim:
+  sim:
     build: .
+    image: metacloudsim
     volumes:
-      # Montar networkExperiments completo (jars, workloads, testbed configs, resultados)
-      - ../networkExperiments:/workspace/networkExperiments
-    # working_dir = /workspace para que el jar lea /workspace/launcher.json (paths Linux)
+      - .:/workspace
     working_dir: /workspace
-    # jar con path absoluto; CWD=/workspace -> lee launcher.json correcto con baseFolder Linux
-    command: java -jar /workspace/networkExperiments/netcloud.jar testbed paper4_smoke
-    environment:
-      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0
+    command: java -jar metacloud.jar testbed paper4_full_planetlab_prophet
 
-  # Servicio de analisis: Jupyter notebook sobre resultados existentes
   jupyter:
     build: .
+    image: metacloudsim
     volumes:
-      # Resultados del paper (ground truth)
-      - ../networkExperiments:/workspace/networkExperiments
-      # Notebooks de analisis copiados
-      - ./python/notebooks:/workspace/notebooks
-      # Resultados nuevos si los hay
-      - ./results:/workspace/results
+      - .:/workspace
+    working_dir: /workspace
     ports:
       - "8888:8888"
-    working_dir: /workspace
     command: >
-      python3.8 -m jupyter notebook
-      --ip=0.0.0.0
-      --no-browser
-      --allow-root
-      --notebook-dir=/workspace/notebooks
-      --NotebookApp.token=''
-      --NotebookApp.password=''
-
-  # Servicio para experimento completo con WBF (pymodule ya disponible)
-  # svila_phd_metacloudsim/cloudsim/src/main/python contiene: Prophet, AutoARIMA, KNN, Bollinger
-  metacloudsim-wbf:
-    build: .
-    volumes:
-      - ../networkExperiments:/workspace/networkExperiments
-    working_dir: /workspace
-    command: java -jar /workspace/networkExperiments/metacloud.jar folder paper4_val_wbf
-    environment:
-      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0
-
-  # Dashboard web de progreso de experimentos (auto-refresh, puerto 8080)
-  # Lee poolExperiments/paper4_full_*/{pending,running,completed,error}
-  # Abrir: http://localhost:8080
-  dashboard:
-    build: .
-    volumes:
-      - ../networkExperiments:/workspace/networkExperiments
-      - ./scripts:/workspace/scripts
-    working_dir: /workspace
-    ports:
-      - "8080:8080"
-    command: python3.8 /workspace/scripts/dashboard.py --prefix paper4_full_ --port 8080
-    environment:
-      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-
-  # Runner SECUENCIAL: genera configs, crea 4 pools y ejecuta los 840 (1 a 1)
-  # Correr en background: docker-compose run --rm -d runner
-  runner:
-    build: .
-    volumes:
-      - ../networkExperiments:/workspace/networkExperiments
-      - ./scripts:/workspace/scripts
-    working_dir: /workspace
-    command: bash /workspace/scripts/run_full_experiments.sh
-    environment:
-      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0
-
-  # Runner PARALELO: N workers disjuntos (aprovecha multi-core)
-  # Correr: docker-compose run --rm -d runner-parallel        (P=2, 8 workers)
-  #         docker-compose run --rm -d runner-parallel bash /workspace/scripts/run_full_parallel.sh 3
-  # i7-14700KF (20 cores, 13GB libre): P=2 recomendado, P=3 si liberas RAM.
-  runner-parallel:
-    build: .
-    volumes:
-      - ../networkExperiments:/workspace/networkExperiments
-      - ./scripts:/workspace/scripts
-    working_dir: /workspace
-    command: bash /workspace/scripts/run_full_parallel.sh 2
-    environment:
-      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0
-    deploy:
-      resources:
-        limits:
-          memory: 28G
+      jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+      --NotebookApp.token='' python/notebooks

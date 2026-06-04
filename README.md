@@ -48,9 +48,10 @@ Windows (PowerShell) helper:
 ## Workloads (data)
 
 The experiments use four public cloud workloads — **PlanetLab, Alibaba 2018, Materna, Microsoft
-Azure 2019**. They are **not redistributed here** due to size/licensing; place the traces under
-`data/` following `data/README_DATA.md`. The reference values reproduced by this package (paper
-Tables 6–9) are in `results/reference/`.
+Azure 2019**. Small **100-VM processed subsets** (`*_100_mostDiff`, ~8 MB total) are **included**
+under `data/` so everything can be reproduced from a single clone. Each dataset keeps its original
+license — see **[data/DATA_LICENSES.md](data/DATA_LICENSES.md)** for sources, terms and citations.
+The reference values reproduced by this package (paper Tables 6–9) are in `results/reference/`.
 
 ---
 

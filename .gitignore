@@ -15,11 +15,9 @@ output/
 generatedExperiments/
 *.log
 
-# Workload traces (large / not redistributed)
-data/planetlab/
-data/alibaba*/
-data/materna/
-data/azure/
+# Workload traces: the small 100_mostDiff subsets ARE included (see data/DATA_LICENSES.md).
+# Ignore only heavy raw/testing variants if ever copied here:
+data/**/*_testing*/
 
 # OS / editor
 .DS_Store

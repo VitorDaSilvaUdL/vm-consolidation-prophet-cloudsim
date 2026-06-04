@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+venv*/
+.venv/
+*.egg-info/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Experiment outputs
+results/smoke_test/*
+!results/smoke_test/.gitkeep
+output/
+generatedExperiments/
+*.log
+
+# Workload traces (large / not redistributed)
+data/planetlab/
+data/alibaba*/
+data/materna/
+data/azure/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

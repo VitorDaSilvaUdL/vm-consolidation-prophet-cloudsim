@@ -1,0 +1,33 @@
+# Excluir ficheros grandes que no se necesitan dentro del container
+
+# Jars (se montan via volume desde networkExperiments/)
+../networkExperiments/*.jar
+../networkExperiments/*.rar
+
+# Bases de datos grandes
+../networkExperiments/*.db
+../networkExperiments/*.db-journal
+
+# Resultados generados anteriormente
+../networkExperiments/generatedExperiments/
+../networkExperiments/poolExperiments/
+
+# Notebooks de analisis (no necesarios para simulacion)
+../networkExperiments/*.ipynb
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Entornos virtuales locales
+venv/
+venv38/
+.venv/
+
+# Resultados locales (se montan via volume)
+results/smoke_test/
+
+# Git
+.git/

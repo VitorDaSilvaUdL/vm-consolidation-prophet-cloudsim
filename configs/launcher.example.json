@@ -1,0 +1,18 @@
+{
+  "_comment": "Copiar este fichero a launcher.json en networkExperiments/ y ajustar paths. Ver environment/java_python_versions.md",
+  "_instrucciones": [
+    "1. Copiar a: networkExperiments/launcher.json",
+    "2. Reemplazar <ABSOLUTE_PATH> con la ruta absoluta a networkExperiments/",
+    "3. Reemplazar <PATH_TO_JPY> con la ruta donde compilaste jpy",
+    "4. Reemplazar <PATH_TO_PYMODULE> con la ruta del codigo Python de CloudSim (pedir a Sergi)",
+    "5. Para smoke test sin jpy: no es necesario jpyLib/jdlLib/pymodule"
+  ],
+  "baseFolder": "<ABSOLUTE_PATH>/networkExperiments",
+  "experimentsFolder": "testbed",
+  "outputFolder": "generatedExperiments",
+  "experiment": "paper4_smoke",
+  "jpyLib": "<PATH_TO_JPY>/jpy/build/lib.linux-x86_64-3.8/jpy.cpython-38-x86_64-linux-gnu.so",
+  "jdlLib": "<PATH_TO_JPY>/jpy/build/lib.linux-x86_64-3.8/jdl.cpython-38-x86_64-linux-gnu.so",
+  "decisionLogger": "<ABSOLUTE_PATH>/networkExperiments/debugLog.txt",
+  "pymodule": "<PATH_TO_PYMODULE>/cloudsim/src/main/python"
+}

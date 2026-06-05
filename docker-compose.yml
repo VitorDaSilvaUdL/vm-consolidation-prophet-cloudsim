@@ -16,7 +16,8 @@ services:
     volumes:
       - .:/workspace
     working_dir: /workspace
-    command: java -jar metacloud.jar testbed paper4_full_planetlab_prophet
+    # 'testbed' expands the config into per-seed runs; 'folder' executes them.
+    command: bash -c "java -jar metacloud.jar testbed paper4_full_planetlab_prophet && java -jar metacloud.jar folder paper4_full_planetlab_prophet"
 
   jupyter:
     build: .

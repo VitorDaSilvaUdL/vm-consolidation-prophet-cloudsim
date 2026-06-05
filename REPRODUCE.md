@@ -29,28 +29,32 @@ docker compose build           # or:  docker build -t metacloudsim .
 
 ## 2. Run an experiment
 
-Each experiment is a file in `testbed/` (use the name **without** `.json`). Output goes to
-`results/<experiment>/`.
+Each experiment is a file in `testbed/` (use the name **without** `.json`). Running it has **two
+steps**: `testbed` expands the config into per-seed runs, and `folder` executes them. Output (the
+per-seed `*_data.json`) goes to `output/<experiment>/`.
 
 ### Linux / macOS (bash)
 
 ```bash
+EXP=paper4_full_planetlab_prophet
 docker run --rm -v "$PWD":/workspace -w /workspace metacloudsim \
-  java -jar metacloud.jar testbed paper4_full_planetlab_prophet
+  bash -c "java -jar metacloud.jar testbed $EXP && java -jar metacloud.jar folder $EXP"
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
+$EXP = "paper4_full_planetlab_prophet"
 docker run --rm -v "${PWD}:/workspace" -w /workspace metacloudsim `
-  java -jar metacloud.jar testbed paper4_full_planetlab_prophet
+  bash -c "java -jar metacloud.jar testbed $EXP && java -jar metacloud.jar folder $EXP"
 ```
 
 ### Or with docker compose (any OS)
 
 ```bash
-docker compose run --rm sim                                           # default: PlanetLab Prophet/WBF
-docker compose run --rm sim java -jar metacloud.jar testbed paper4_full_alibaba_prophet
+docker compose run --rm sim          # default: PlanetLab Prophet/WBF (runs testbed + folder)
+# another experiment:
+docker compose run --rm sim bash -c "java -jar metacloud.jar testbed paper4_full_alibaba_prophet && java -jar metacloud.jar folder paper4_full_alibaba_prophet"
 ```
 
 ### Available experiments
@@ -72,7 +76,7 @@ CPU). To reproduce all four workloads, run the eight `paper4_full_*` experiments
 
 ## 3. Analyse the results (tables and figures)
 
-After the runs, the per-simulation JSON files are in `results/<experiment>/`. Analyse them with
+After the runs, the per-simulation JSON files are in `output/<experiment>/`. Analyse them with
 the bundled script or the notebooks.
 
 ```bash

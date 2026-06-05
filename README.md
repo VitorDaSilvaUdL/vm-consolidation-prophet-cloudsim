@@ -34,15 +34,17 @@ docker compose up jupyter                    # analysis at http://localhost:8888
 
 Run any experiment by name (file in `testbed/` without `.json`):
 
-**Linux / macOS**
+**Linux / macOS** (two steps: `testbed` expands the config, `folder` runs it → `output/<exp>/`)
 ```bash
+EXP=paper4_full_alibaba_prophet
 docker run --rm -v "$PWD":/workspace -w /workspace metacloudsim \
-  java -jar metacloud.jar testbed paper4_full_alibaba_prophet
+  bash -c "java -jar metacloud.jar testbed $EXP && java -jar metacloud.jar folder $EXP"
 ```
 **Windows (PowerShell)**
 ```powershell
+$EXP = "paper4_full_alibaba_prophet"
 docker run --rm -v "${PWD}:/workspace" -w /workspace metacloudsim `
-  java -jar metacloud.jar testbed paper4_full_alibaba_prophet
+  bash -c "java -jar metacloud.jar testbed $EXP && java -jar metacloud.jar folder $EXP"
 ```
 
 ➡ **Full step-by-step for every experiment: [REPRODUCE.md](REPRODUCE.md)** (Linux + Windows).

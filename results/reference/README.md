@@ -1,45 +1,21 @@
-# Resultados de Referencia — Paper 4
+# Reference results — paper Tables 6–9 (ground truth)
 
-Los resultados originales del paper estan en:
-```
-C:\Users\PcVIP\Desktop\Proyecto Sergi\networkExperiments\paper4_data\
-```
+These are the values published in the paper. Use them as the **ground truth** to compare any
+re-run produced under `output/<experiment>/`.
 
-Estos son el GROUND TRUTH con el que comparar cualquier re-ejecucion.
+## Metrics
 
-## Estructura de paper4_data/
+| Metric | Description | Unit | Better |
+|--------|-------------|------|--------|
+| Energy | Total (composite) energy of the simulation | kWh | lower |
+| SLA | Service-Level-Agreement violations | % | lower |
+| Migrations | Number of VM migrations | # | lower |
+| ESV | Energy–SLA Value (combined metric) | — | lower |
 
-```
-paper4_data/
-├── planetlab/
-│   ├── planetlab_all.xlsx              # Tabla 6 del paper: todas las tecnicas
-│   └── figures/                        # Graficas del paper
-├── alibaba_wbf_final_without_wibf/
-│   ├── alibaba_all.xlsx                # Tabla 7 del paper
-│   └── figures/
-├── materna_wbf_final_without_wibf/
-│   ├── materna_all.xlsx                # Tabla 8 del paper
-│   └── figures/
-└── azure_wbf_final_without_wibf/
-    ├── azure_all.xlsx                  # Tabla 9 del paper
-    └── figures/
-```
+## Table 6 — PlanetLab (all techniques)
 
-## Metricas reportadas en el paper
-
-Las 4 metricas principales evaluadas:
-
-| Metrica | Descripcion | Unidad | Mejor |
-|---------|-------------|--------|-------|
-| Energy | Consumo energetico total de la simulacion | kWh | Menor |
-| SLA | Violaciones de SLA (Service Level Agreement) | % | Menor |
-| Migrations | Numero de migraciones de VMs | # | Menor |
-| ESV | Energy-SLA Value (metrica combinada) | adim | Menor |
-
-## Tabla 6 — PlanetLab (resultados completos)
-
-| Tecnica | Energy (kWh) | SLA (%) | Migrations | ESV |
-|---------|-------------|---------|-----------|-----|
+| Technique | Energy (kWh) | SLA (%) | Migrations | ESV |
+|-----------|-------------:|--------:|-----------:|----:|
 | MU | 38.71 | 5.43 | 1618 | 210.27 |
 | MMT | 28.44 | 2.92 | 931 | 84.15 |
 | RS | 28.70 | 3.00 | 776 | 85.79 |
@@ -48,35 +24,32 @@ Las 4 metricas principales evaluadas:
 | WF | 23.16 | 2.46 | 322 | 56.33 |
 | **WBF** | **23.15** | **2.23** | **296** | **53.84** |
 
-WBF = WF + Bollinger Bands signal processing -> mejor en 3 de 4 metricas
+WBF = WF + Bollinger Bands signal processing → best in 3 of 4 metrics.
 
-## Tabla 7 — Alibaba
-
-| Tecnica | Energy (kWh) | SLA (%) | Migrations | ESV |
-|---------|-------------|---------|-----------|-----|
+## Table 7 — Alibaba
+| Technique | Energy (kWh) | SLA (%) | Migrations | ESV |
+|-----------|-------------:|--------:|-----------:|----:|
 | WF | 26.47 | 5.14 | 350 | 135.12 |
 | **WBF** | 28.02 | **3.02** | **330** | **85.21** |
 
-## Tabla 8 — Materna
-
-| Tecnica | Energy (kWh) | SLA (%) | Migrations | ESV |
-|---------|-------------|---------|-----------|-----|
+## Table 8 — Materna
+| Technique | Energy (kWh) | SLA (%) | Migrations | ESV |
+|-----------|-------------:|--------:|-----------:|----:|
 | WF | 24.17 | 3.48 | 371 | 84.55 |
 | **WBF** | 25.13 | **2.41** | **320** | **60.68** |
 
-## Tabla 9 — Azure
-
-| Tecnica | Energy (kWh) | SLA (%) | Migrations | ESV |
-|---------|-------------|---------|-----------|-----|
+## Table 9 — Azure
+| Technique | Energy (kWh) | SLA (%) | Migrations | ESV |
+|-----------|-------------:|--------:|-----------:|----:|
 | WF | 23.43 | 2.26 | 294 | 51.98 |
 | **WBF** | 24.59 | **1.63** | **259** | **39.50** |
 
-## Como comparar resultados de una nueva ejecucion
+## How to compare a new run
 
-1. Ejecutar smoke test: `scripts/run_smoke_test.ps1`
-2. Abrir `python/notebooks/statistics_paper4.ipynb`
-3. En la primera celda, cambiar `baseFolder` a la ruta de `generatedExperiments/`
-4. Ejecutar todas las celdas
-5. Comparar tablas generadas con los valores de referencia arriba
+1. Run the experiments (see [../../REPRODUCE.md](../../REPRODUCE.md)) — results land in `output/<experiment>/`.
+2. Aggregate them: `python3 scripts/analyze_results.py --output-dir output --out summary.json`
+   (or open `python/notebooks/statistics_paper4.ipynb`).
+3. Compare the aggregated tables with the reference values above.
 
-Tolerancia aceptable: +/- 2% en todas las metricas (variabilidad por scheduler del OS).
+Note: PlanetLab Table 6 averages 10 daily traces; the shipped subset reproduces the trends, while
+exact absolute values need the full set of traces.

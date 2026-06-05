@@ -1,4 +1,4 @@
-# Excluir ficheros grandes que no se necesitan dentro del container
+# Exclude large files not needed inside the container
 
 # Jars (se montan via volume desde networkExperiments/)
 ../networkExperiments/*.jar

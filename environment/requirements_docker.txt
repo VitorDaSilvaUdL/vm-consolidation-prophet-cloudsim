@@ -1,5 +1,5 @@
 # requirements_docker.txt
-# Version limpia para Docker (Python 3.8) sin torch/neuralprophet por tamano.
+# Clean Docker requirements (Python 3.8), without torch/neuralprophet (kept out for size).
 # Para NeuralProphet: instalar separado con: pip install neuralprophet==0.2.7 torch==1.6.0
 #
 # Generado para reproducibilidad del Paper 4:

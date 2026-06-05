@@ -1,23 +1,13 @@
-# Experimentos adicionales — Paper 4 (major review)
+# Additional experiments
 
-Cada subcarpeta es un experimento nuevo pedido por la revisión, con su propio README, config, resultados y conclusión. Todos se ejecutan con la misma infraestructura Docker + pools paralelos del proyecto.
+Beyond the main comparison (classical baselines vs. WF/WBF on the four workloads), two extra studies
+support the design choices of the method. Each has its own folder with a short report.
 
-| Experimento | Objetivo | Responde a |
-|-------------|----------|-----------|
-| [bollinger_tuning/](bollinger_tuning/) | Encontrar el parámetro Bollinger (window, α) que usó Sergi y cerrar el gap WBF | Rev 2: WF vs WBF marginal |
-| [neuralprophet/](neuralprophet/) | Comparar NeuralProphet vs Facebook Prophet (WBF) | Rev 1: contribución pequeña |
-| [bollinger_full_rerun/](bollinger_full_rerun/) | Re-ejecutar WF/WBF en los 4 workloads con el Bollinger correcto | cerrar reproducción exacta |
+| Study | Question | Result |
+|-------|----------|--------|
+| [neuralprophet/](neuralprophet/) | Is a deep-learning forecaster (NeuralProphet) better than Facebook Prophet for the migration decision? | **No** — Facebook Prophet wins in 7 of 8 cases (fewer migrations). |
+| [bollinger_tuning/](bollinger_tuning/) | How does the Bollinger filter (window, $\alpha$) affect WF → WBF? | The filter trades a small energy increase for fewer migrations and lower SLA; tuning shifts the operating point. |
 
-## Convención
-
-- Config testbed: `networkExperiments/testbed/exp_<nombre>.json`
-- Resultados: `networkExperiments/output/exp_<nombre>/`
-- Análisis: `analyze_results.py` (energía compuesta = fórmula de Sergi)
-- Comparación: contra el output real de Sergi (`paper4_data/`) y el PDF
-
-## Reproducibilidad
-
-```powershell
-cd project_minimized
-docker-compose run --rm metacloudsim bash -c "java -jar /workspace/networkExperiments/metacloud.jar testbed exp_<nombre> && java -jar /workspace/networkExperiments/metacloud.jar folder exp_<nombre>"
-```
+The corresponding simulator configurations are in `../testbed/`
+(`exp_neuralprophet.json`, `exp_bollinger_search.json`) and are run exactly like the main
+experiments (see [../REPRODUCE.md](../REPRODUCE.md)).

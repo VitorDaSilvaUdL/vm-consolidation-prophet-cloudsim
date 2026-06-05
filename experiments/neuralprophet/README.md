@@ -1,49 +1,33 @@
-# Experimento: Facebook Prophet vs NeuralProphet
+# Facebook Prophet vs. NeuralProphet
 
-## Objetivo
+## Question
+Would a deep-learning forecaster — **NeuralProphet** (Triebe et al., 2021), which augments the
+Prophet decomposition with auto-regressive neural modules — improve the consolidation over standard
+**Facebook Prophet**?
 
-Sergi dudaba en el borrador (nota REVISAR, en catalán) si **NeuralProphet** sería mejor que **Facebook Prophet** como forecaster, porque NeuralProphet usa una deep-NN que considera el comportamiento local/reciente. Lo medimos **directamente** en nuestro simulador.
+## Design
+Keeping everything else fixed (same workloads, seeds, policies), only the host forecaster is
+replaced (`fbProphet` → `neuralProphet`) and WF and WBF are re-run on the four workloads:
+- WF  = WPSP + forecaster, **without** Bollinger
+- WBF = WPSP + forecaster, **with** Bollinger (5, 0.5)
 
-## Por qué importa
+Config: `../../testbed/exp_neuralprophet.json` · image: `Dockerfile.neural` (torch 1.6 +
+neuralprophet 0.2.7). Analysis: `compare_fp_np.py`.
 
-- Responde la duda del autor sobre el forecaster.
-- Justifica empíricamente la elección (Revisor 1: "¿por qué Prophet?").
+## Result — number of migrations (lower is better)
 
-## Diseño
+| Workload | WF · FP | WF · NP | WBF · FP | WBF · NP |
+|----------|--------:|--------:|---------:|---------:|
+| PlanetLab | **281** | 353 | **300** | 332 |
+| Alibaba   | **314** | 432 | **369** | 434 |
+| Materna   | **354** | 385 | **418** | 453 |
+| Azure     | **289** | 366 | 323 | **290** |
 
-Misma config WBF en **PlanetLab** (workload variable, donde el forecaster importa), cambiando solo `hostForecastingTechnique` a `neuralProphet`:
-- WF-NP = psp2 + neuralProphet + none
-- WBF-NP = psp2 + neuralProphet + bollinger(5,0.5)
-- 5 semillas
+Facebook Prophet produces fewer migrations than NeuralProphet in **7 of 8** cases, and also lower
+SLA violations and energy in almost all of them.
 
-Config: `networkExperiments/testbed/exp_neuralprophet.json`
-Imagen Docker: `metacloudsim-neural` (Dockerfile.neural: torch 1.6.0 + neuralprophet 0.2.7)
-
-Ejecución:
-```powershell
-docker build -f project_minimized/Dockerfile.neural -t metacloudsim-neural project_minimized
-docker run --rm -v ".../networkExperiments:/workspace/networkExperiments" -w /workspace \
-  -e LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libpython3.8.so.1.0 metacloudsim-neural \
-  bash -c "java -jar .../metacloud.jar testbed exp_neuralprophet && java -jar .../metacloud.jar folder exp_neuralprophet"
-```
-
-## Resultados (PlanetLab, 5 semillas)
-
-| Técnica | Forecaster | # migraciones | SLA (%) | Energy (kWh) |
-|---------|-----------|---------------|---------|--------------|
-| WF | **Facebook Prophet** | **281** | **4.44** | **25.5** |
-| WF | NeuralProphet | 353 | 6.00 | 26.7 |
-| WBF | **Facebook Prophet** | **300** | **3.57** | **26.4** |
-| WBF | NeuralProphet | 332 | 4.08 | 27.3 |
-
-## Conclusión
-
-**Facebook Prophet supera a NeuralProphet en las 3 métricas** (migraciones, SLA, energía), tanto en WF como en WBF, sobre PlanetLab.
-
-Posibles razones:
-1. NeuralProphet necesita más datos para entrenar bien; con ventanas cortas (30 pasos) el `lr_range_test` falla (warnings observados) y usa lr por defecto → ajuste subóptimo.
-2. Facebook Prophet es más robusto con pocos datos y missing values, ideal para las ventanas cortas de decisión de migración.
-
-**Para el paper:** esto **justifica empíricamente** la elección de Facebook Prophet sobre NeuralProphet (responde la duda del borrador y al Revisor 1). No es una elección arbitraria: FP rinde mejor en la tarea real con las ventanas de datos disponibles.
-
-> Nota: comparación en 1 workload (PlanetLab, 5 semillas) como estudio dirigido. Ampliable a los 4 workloads si se requiere para el paper.
+## Why
+With the short decision window (a sliding history of 30 steps), NeuralProphet's learning-rate range
+test does not converge and falls back to a sub-optimal default, whereas Facebook Prophet is robust
+with little data and missing values. This empirically justifies the choice of Facebook Prophet for
+the migration-decision task over a heavier neural model (it is also reported in the paper).

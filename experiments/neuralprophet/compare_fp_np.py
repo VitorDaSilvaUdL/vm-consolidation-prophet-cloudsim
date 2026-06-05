@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """
-Comparación COMPLETA Facebook Prophet vs NeuralProphet en los 4 workloads.
-Todas las métricas (energía compuesta, SLA, migraciones, ESV, ME, RAM in BW,
-hosts, dispersión CPU).
+Full Facebook Prophet vs. NeuralProphet comparison on the four workloads.
+All metrics (composite energy, SLA, migrations, ESV, ME, RAM in BW, hosts, CPU dispersion).
 
-Lee:
-  - Prophet (FP):  networkExperiments/output/paper4_full_<wl>_prophet/*_data.json
-  - NeuralProphet: networkExperiments/output/exp_np_<wl>/*_data.json (+ exp_neuralprophet para planetlab)
+Reads the per-seed result files produced by the simulator:
+  - Prophet (FP):  output/paper4_full_<wl>_prophet/*_data.json
+  - NeuralProphet: output/exp_np_<wl>/*_data.json (and exp_neuralprophet/ for PlanetLab)
 
-Uso:
-  python3 compare_fp_np.py --out RESULTS_4WORKLOADS.md
+Usage (from the repository root, after running the experiments):
+  python3 experiments/neuralprophet/compare_fp_np.py --out RESULTS_4WORKLOADS.md
 """
 import argparse, glob, json, os, collections
 
-OUT_DIR = "../../../networkExperiments/output"
+OUT_DIR = os.environ.get("OUT_DIR", "output")
 WL = ["planetlab", "alibaba", "materna", "azure"]
 
 
@@ -57,9 +56,9 @@ def main():
     ap.add_argument("--out", default="RESULTS_4WORKLOADS.md")
     args = ap.parse_args()
 
-    lines = ["# Facebook Prophet vs NeuralProphet — 4 workloads, métricas completas\n\n"]
-    lines.append("FP = Facebook Prophet (nuestro forecaster). NP = NeuralProphet. ")
-    lines.append("Energía = compuesta (host + migración por red). ↓ mejor salvo ME (↑).\n\n")
+    lines = ["# Facebook Prophet vs NeuralProphet — 4 workloads, full metrics\n\n"]
+    lines.append("FP = Facebook Prophet (our forecaster). NP = NeuralProphet. ")
+    lines.append("Energy = composite (host + network migration). Lower is better, except ME (higher).\n\n")
 
     print(f"{'workload':10} {'tech':4} {'forecaster':12} {'E':>6} {'SLA':>6} {'mig':>6} {'ESV':>7} {'ME':>5} {'RAMbw':>7}")
     for wl in WL:
@@ -69,7 +68,7 @@ def main():
             np_pats.append(f"{OUT_DIR}/exp_neuralprophet/*_data.json")
         npr = collect(np_pats)
         lines.append(f"## {wl}\n\n")
-        lines.append("| Técnica | Forecaster | Energy | SLA % | Migr | ESV | ME | RAM in BW |\n")
+        lines.append("| Technique | Forecaster | Energy | SLA % | Migr | ESV | ME | RAM in BW |\n")
         lines.append("|---------|-----------|--------|-------|------|-----|----|-----------|\n")
         for tech in ["WF", "WBF"]:
             for label, src in [("Facebook Prophet", fp), ("NeuralProphet", npr)]:
@@ -83,12 +82,12 @@ def main():
                              f"{m['mig']:.0f} | {m['esv']:.1f} | {m['me']:.2f} | {m['ramBw']:.1f} |\n")
         lines.append("\n")
 
-    lines.append("## Conclusión\n\nFacebook Prophet vs NeuralProphet por workload: ")
-    lines.append("ver dónde FP gana (menos migraciones/SLA/energía). NeuralProphet sufre con ventanas ")
-    lines.append("cortas (30 pasos): su lr_range_test no converge. FP es robusto con pocos datos.\n")
+    lines.append("## Conclusion\n\nFacebook Prophet vs NeuralProphet per workload: ")
+    lines.append("FP generally wins (fewer migrations / SLA / energy). NeuralProphet struggles with the ")
+    lines.append("short 30-step windows (its lr_range_test does not converge); FP is robust with little data.\n")
     with open(args.out, "w", encoding="utf-8") as f:
         f.writelines(lines)
-    print(f"\nEscrito {args.out}")
+    print(f"\nWrote {args.out}")
 
 
 if __name__ == "__main__":

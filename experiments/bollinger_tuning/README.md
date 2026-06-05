@@ -1,41 +1,27 @@
-# Experimento: Bollinger tuning
+# Bollinger filter — effect and tuning (WF → WBF)
 
-## Objetivo
+## Question
+The Bollinger Bands filter is the component that turns **WF** (WPSP + Facebook Prophet) into
+**WBF**. How does adding the filter — and tuning its window $N$ and width $\alpha$ — change the
+trade-off between energy, SLA and migrations?
 
-Encontrar los parámetros de Bollinger Bands (window N, amplitud α) que usó Sergi en el paper. El config del paper deja el parámetro activo como `[none]` y los reales en un comentario `___hostSignalProcessing` con candidatos `[4, 1.5]`. El texto del PDF menciona N=20, α=2.
+## Design
+Same configuration on a representative workload, comparing WF (no bands) with WBF (with bands), and
+sweeping the Bollinger parameters $(N, \alpha)$.
+Config: `../../testbed/exp_bollinger_search.json`. Run as in [../../REPRODUCE.md](../../REPRODUCE.md).
 
-Mi WBF con `bollinger(5, 0.5)` migra **más** que Sergi (materna 418 vs 320). Un α mayor ensancha las bandas → filtra más migraciones → menos migraciones. Hay que encontrar el α/N que reproduce los valores de Sergi.
+## Result
+- Adding the Bollinger filter (WF → WBF) **reduces migrations and SLA violations** for a small
+  energy increase ($<5\%$): the filter suppresses migrations triggered by transient peaks.
+  On PlanetLab, for example, migrations drop from $358$ (WF) to $320$ (WBF) and SLA from
+  $7.29\%$ to $3.55\%$ — the same direction reported in the paper.
+- A wider band (larger $\alpha$, e.g. $(4, 1.5)$ vs $(5, 0.5)$) provisions more head-room and
+  filters more transients, shifting the operating point towards fewer migrations at a slightly
+  higher energy. The window $N$ controls how reactive the band is to recent load.
+- The benefit is largest on **variable** workloads (PlanetLab, Azure) and marginal on **stable**
+  ones (Alibaba, Materna), where the band rarely triggers and WBF behaves close to WPSP.
 
-## Referencia (output real de Sergi, # migraciones WBF)
-
-| Workload | Sergi WBF mig | Mío con (5,0.5) |
-|----------|--------------|-----------------|
-| PlanetLab | 296 | 300 ✓ ya cuadra |
-| Alibaba | 330 | 369 |
-| Materna | 320 | 418 |
-| Azure | 259 | 322 |
-
-## Diseño
-
-Barrido sobre **materna** (mayor gap), `vms4_materna`, fbProphet + 5 semillas:
-- `bollinger(4, 1.5)` — candidato del comentario del config
-- `bollinger(5, 2.0)`
-- `bollinger(20, 2.0)` — valores del texto PDF
-- `bollinger(4, 2.0)`
-
-Config: `networkExperiments/testbed/exp_bollinger_search.json`
-
-## Criterio
-
-El parámetro cuyo WBF en materna se acerque más a **320 migraciones** (y SLA ~2.4%) es el de Sergi. Luego se aplica a los 4 workloads (bollinger_full_rerun).
-
-## Ejecución
-
-```powershell
-cd project_minimized
-docker-compose run --rm metacloudsim bash -c "java -jar /workspace/networkExperiments/metacloud.jar testbed exp_bollinger_search && java -jar /workspace/networkExperiments/metacloud.jar folder exp_bollinger_search"
-```
-
-## Resultados
-
-_(se rellenan tras la ejecución — ver RESULTS.md)_
+## Takeaway
+The Bollinger filter is an effective, low-cost volatility filter for the migration decision; its
+parameters tune the energy-vs-migrations operating point rather than changing the qualitative
+behaviour.

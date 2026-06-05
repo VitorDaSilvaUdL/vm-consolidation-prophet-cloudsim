@@ -68,14 +68,16 @@ citations. The reference values (paper Tables 6–9) are in `results/reference/`
 ├── pymodule/                 # Python forecasting (Prophet, Bollinger, ...) loaded via jpy
 ├── testbed/                  # experiment configs (paper4_full_*, exp_*)
 ├── workloads/                # 100-VM trace subsets + DATA_LICENSES.md
+├── topologies/ hosts/ vms/   # network topology and host/VM definitions
+├── interactions/             # VM-to-VM communication patterns
 ├── results/                  # run outputs (results/reference/ = paper Tables 6–9)
-├── scripts/                  # analysis / helper scripts
+├── experiments/              # additional studies (NeuralProphet vs Prophet, Bollinger tuning)
+├── scripts/                  # analysis helpers + container entrypoint
 ├── python/notebooks/         # analysis notebooks (tables and figures)
 ├── Dockerfile                # toolchain: Java 8 + Python 3.8 + Prophet + jpy
 ├── Dockerfile.neural         # variant with NeuralProphet (forecaster comparison)
 ├── docker-compose.yml        # services: sim + jupyter
-├── REPRODUCE.md              # how to run each experiment (Linux + Windows)
-└── docs/                     # audit, specs, reproducibility report
+└── REPRODUCE.md              # how to run each experiment (Linux + Windows)
 ```
 
 ---
@@ -84,11 +86,10 @@ citations. The reference values (paper Tables 6–9) are in `results/reference/`
 
 | File | Description |
 |------|-------------|
-| [docs/REPRODUCIBILITY_REPORT.md](docs/REPRODUCIBILITY_REPORT.md) | Reproducibility status and how-to |
-| [docs/PAPER4_SPECS.md](docs/PAPER4_SPECS.md) | Exact experiment specification |
-| [docs/CODE_AUDIT.md](docs/CODE_AUDIT.md) | Technical audit |
+| [REPRODUCE.md](REPRODUCE.md) | How to run each experiment (Linux + Windows) |
+| [experiments/README.md](experiments/README.md) | Additional studies (NeuralProphet vs Prophet, Bollinger tuning) |
 | [results/reference/README.md](results/reference/README.md) | Paper Tables 6–9 (ground truth) |
-| [environment/java_python_versions.md](environment/java_python_versions.md) | Java 8 / Python 3.8 setup |
+| [workloads/DATA_LICENSES.md](workloads/DATA_LICENSES.md) | Workload sources, licences and citations |
 
 ---
 

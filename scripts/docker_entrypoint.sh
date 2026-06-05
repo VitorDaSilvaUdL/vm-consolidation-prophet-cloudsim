@@ -15,4 +15,17 @@ EOF
 echo "[entrypoint] jpyconfig.properties fixed:"
 cat "$D/jpyconfig.properties"
 
+# The simulator expands a 'testbed <experiment>' config into per-seed files under
+# generatedExperiments/<experiment>/ but does not create that directory. Pre-create
+# the output dirs for the requested experiment so the run does not fail.
+base="${WORKSPACE:-/workspace}"
+mkdir -p "$base/generatedExperiments" "$base/output" "$base/results"
+args=("$@")
+for ((i=0; i<${#args[@]}; i++)); do
+  if [ "${args[$i]}" = "testbed" ] || [ "${args[$i]}" = "folder" ]; then
+    exp="${args[$((i+1))]}"
+    [ -n "$exp" ] && mkdir -p "$base/generatedExperiments/$exp" "$base/output/$exp" "$base/results/$exp"
+  fi
+done
+
 exec "$@"

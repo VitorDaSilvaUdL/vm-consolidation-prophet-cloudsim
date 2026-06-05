@@ -11,6 +11,8 @@ results/*
 !results/.gitkeep
 !results/reference/
 results/reference/**/__pycache__/
+output/
+generatedExperiments/
 debugLog.txt
 *.log
 

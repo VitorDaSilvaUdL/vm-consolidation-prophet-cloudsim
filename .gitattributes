@@ -1,1 +1,9 @@
 *.jar filter=lfs diff=lfs merge=lfs -text
+
+# Force LF for files executed inside the Linux container (Windows clones must not get CRLF)
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+Dockerfile.neural text eol=lf
+docker-compose.yml text eol=lf
+*.py        text eol=lf
+launcher.json text eol=lf
